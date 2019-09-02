@@ -9,100 +9,48 @@
 import UIKit
 import UserNotifications
 
-//struct MyOrder {
-//
-//    var name: String
-//    var items: Int
-//    var address: String
-//
-//    init(name: String, items: Int, address: String) {
-//        self.name = name
-//        self.items = items
-//        self.address = address
-//    }
-//}
 
 class ShoppingItemsCollectionViewController: UICollectionViewController {
-    
-    @IBAction func sendOrder(_ sender: Any)
-    {
-
-
-            let content = UNMutableNotificationContent()
-            content.title = "Delivery for "
-            content.subtitle = "Your order is on it's way."
-            content.body = "Your will be delivered to"
-            content.badge = 1
-            
-            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)
-        
-            let request = UNNotificationRequest(identifier: "timerDone", content: content, trigger: trigger)
-            UNUserNotificationCenter.current().add(request, withCompletionHandler: nil)
-        }
-    
+ 
     let shoppingController = ShoppingController()
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge], completionHandler: {didAllow, error in})
-        
-setupNavBar()
     }
-
+    
     func setupNavBar() {
         navigationController?.navigationBar.prefersLargeTitles = true
     }
 
-    // MARK: UICollectionViewDataSource
-
 
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return shoppingController.items.count
+        return shoppingController.myShoppingItems.count
     }
-
+// THIS IS THE FUNCTION THAT IT IS CALLING TO UPDATE THE CELLS/VIEW
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ShoppingCell", for: indexPath) as? ShoppingCollectionViewCell else {return UICollectionViewCell() }
-    
-        let shopping = shoppingController.items[indexPath.item]
-        cell.imageView.image = shopping.image
-        cell.textLabel.text = shopping.name
-
+   
+        let shoppingItem = shoppingController.myShoppingItems[indexPath.item]
+        cell.shoppingItem = shoppingItem
     
         return cell
     }
-
-}
-    // MARK: UICollectionViewDelegate
-
-    /*
-    // Uncomment this method to specify if the specified item should be highlighted during tracking
-    override func collectionView(_ collectionView: UICollectionView, shouldHighlightItemAt indexPath: IndexPath) -> Bool {
-        return true
+//this updates the label when the item is tapped
+    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let myItemBeenAdded = shoppingController.myShoppingItems[indexPath.item]
+        print(myItemBeenAdded.name)
+        shoppingController.updateBeenAdded(for: myItemBeenAdded)
+        collectionView.reloadData()
     }
-    */
-
-    /*
-    // Uncomment this method to specify if the specified item should be selected
-    override func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-        return true
+    // if the segue's identifier (street name) is equal to where we want to go, then it will perform the code
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "ShowSegue" {
+            guard let destinationViewController = segue.destination as? sendOrderViewController else { return }
+            destinationViewController.shoppingController = shoppingController
+        }
     }
-    */
-
-    /*
-    // Uncomment these methods to specify if an action menu should be displayed for the specified item, and react to actions performed on the item
-    override func collectionView(_ collectionView: UICollectionView, shouldShowMenuForItemAt indexPath: IndexPath) -> Bool {
-        return false
-    }
-
-    override func collectionView(_ collectionView: UICollectionView, canPerformAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) -> Bool {
-        return false
-    }
-
-    override func collectionView(_ collectionView: UICollectionView, performAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) {
+ // the destinationViewController is my SendOrderViewController. This is where I want the information to go after my next button is selected in the first screen
     
-    }
-    */
-
+}
 
 
